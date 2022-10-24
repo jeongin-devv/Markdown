@@ -332,8 +332,9 @@ export { Usage };
 `State Reducer Pattern`은 `IoC`의 측면에서 가장 효과적인 패턴이다. **개발자가 컴포넌트 내부의 실행 방식을 변경할 수 있는 방법을 제공**한다. 
 
 `Custom Hook Pattern`과 비슷해 보이지만 사용자가 `Hook`을 통해 전달된 `Reducer`를 정의한다는 차이가 있고, `Reducer`는 **컴포넌트 내부의 모든 동작을 오버로드**한다.
+
 <br>
-`IoC` 란  **"Inversion of Control"** 의 약자로 컴포넌트 사용자에게 주어지는 유연성과 제어권
+`IoC` 란  **"Inversion of Control"** 의 약자로 컴포넌트 사용자에게 주어지는 유연성과 제어권을 의미한다.
 <br><br>
 
 ## (1) Example

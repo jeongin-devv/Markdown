@@ -229,7 +229,7 @@ export { Usage };
 
 ## (3) 단점
 
- - 구현의 복잡성<br> 기능 로직과 화면을 렌더링 하는 부분이 분리 되어 있기 때문에, 사용자는 로직과 랜더링 파트를 연결해야 한다.  따라서, 컴포넌트를 올바르게 구현하기 위해 컴포넌트의 동작 방식에 대한 깊은 이해가 필요하다.
+ - 구현의 복잡성<br> 기능 로직과 화면을 렌더링 하는 부분이 분리 되어 있기 때문에, 사용자는 로직과 랜더링 파트를 연결해야 한다.  따라서, 의도에 부합하게 구현하기 위해서는 컴포넌트의 동작 방식에 대한 깊은 이해가 필요하다.
 
  <br>
 
@@ -240,3 +240,182 @@ export { Usage };
 
 [React Table]:https://tanstack.com/table/v8
 [React Hook Form]:https://react-hook-form.com/api/
+
+<br>
+
+# 4. Props Getters Pattern
+<br>
+
+`Custom Hook Pattern`은 륭한 제어 기능을 제공 하지만 
+개발자가 많은 기본 요소를 처리하고 로직를 다시 만들어야 하기 때문에 컴포넌트 요소를 구성하기 더 어렵다.
+<br>
+
+`Props Getters Pattern`은 이러한 단점을 `Native props`를 그대로 보여주는 대신 `Props Getters`의 목록을 제공하여 극복하고자 한다.
+<br>
+
+여기서의 `Getters` 는 `Props` 를 반환 하는 함수이며, 사용자의 편의성을 위해 기능, 사용처 등이 담긴 의미있는 이름으로 네이밍 하여야 한다.
+<br><br>
+
+## (1) Example
+
+```javascript
+import React from "react";
+import { Counter } from "./Counter";
+import { useCounter } from "./useCounter";
+
+const MAX_COUNT = 10;
+
+function Usage() {
+  const {
+    count,
+    getCounterProps,
+    getIncrementProps,
+    getDecrementProps
+  } = useCounter({
+    initial: 0,
+    max: MAX_COUNT
+  });
+
+  const handleBtn1Clicked = () => {
+    console.log("btn 1 clicked");
+  };
+
+  return (
+    <>
+      <Counter {...getCounterProps()}>
+        <Counter.Decrement icon={"minus"} {...getDecrementProps()} />
+        <Counter.Label>Counter</Counter.Label>
+        <Counter.Count />
+        <Counter.Increment icon={"plus"} {...getIncrementProps()} />
+      </Counter>
+      <button {...getIncrementProps({ onClick: handleBtn1Clicked })}>
+        Custom increment btn 1
+      </button>
+      <button {...getIncrementProps({ disabled: count > MAX_COUNT - 2 })}>
+        Custom increment btn 2
+      </button>
+    </>
+  );
+}
+
+export { Usage };
+```
+
+## (2) 장점
+
+- 사용의 간편함<br> 컴포넌트를 사용하기 쉬운 방법을 제공하며, 로직의 복잡한 부분은 가려져 있다. 사용자는 올바른 `Getter`를 그에 맞는 JSX 요소에 연결하기만 하면 된다.
+
+- 유연성<br> 사용자는 필요에 의해 `Getter`의 `Props`를 오버 로딩하여 특정 경우에 적용할 수 있습니다.
+
+<br>
+
+## (3) 단점
+
+ - 가시성의 부족<br> `Getters` 를 통해 컴포넌트를 추상화하여 사용하기 쉽게 만들어 주지만, 컴포넌트에 대한 정보가 부족하여 가시성이 불투명하게 된다. 
+ 컴포넌트를 오버라이드 하기 위해 사용자는 `Getters`에 의해 제공된 `Props` 리스트와 그 중 하나가 변경될 때 내부 로직의 미치는 영향을 알아야만 한다.
+
+ <br>
+
+ ## (4) 이 패턴을 사용하는 라이브러리
+ 
+- [React Table][]
+- [Downshift][]
+
+[React Table]:https://tanstack.com/table/v8
+[Downshift]:https://github.com/downshift-js/downshift#usage
+
+<br>
+
+# 5. State Reducer Pattern
+<br>
+
+`State Reducer Pattern`은 `IoC`의 측면에서 가장 효과적인 패턴이다. **개발자가 컴포넌트 내부의 실행 방식을 변경할 수 있는 방법을 제공**한다. 
+
+`Custom Hook Pattern`과 비슷해 보이지만 사용자가 `Hook`을 통해 전달된 `Reducer`를 정의한다는 차이가 있고, `Reducer`는 **컴포넌트 내부의 모든 동작을 오버로드**한다.
+<br>
+`IoC` 란  **"Inversion of Control"** 의 약자로 컴포넌트 사용자에게 주어지는 유연성과 제어권
+<br><br>
+
+## (1) Example
+
+```javascript
+import React from "react";
+import { Counter } from "./Counter";
+import { useCounter } from "./useCounter";
+
+const MAX_COUNT = 10;
+function Usage() {
+  const reducer = (state, action) => {
+    switch (action.type) {
+      case "decrement":
+        return {
+          count: Math.max(0, state.count - 2) //The decrement delta was changed for 2 (Default is 1)
+        };
+      default:
+        return useCounter.reducer(state, action);
+    }
+  };
+
+  const { count, handleDecrement, handleIncrement } = useCounter(
+    { initial: 0, max: 10 },
+    reducer
+  );
+
+  return (
+    <>
+      <Counter value={count}>
+        <Counter.Decrement icon={"minus"} onClick={handleDecrement} />
+        <Counter.Label>Counter</Counter.Label>
+        <Counter.Count />
+        <Counter.Increment icon={"plus"} onClick={handleIncrement} />
+      </Counter>
+      <button onClick={handleIncrement} disabled={count === MAX_COUNT}>
+        Custom increment btn 1
+      </button>
+    </>
+  );
+}
+
+export { Usage };
+```
+
+위 예제에서는 이 예제는 `State Reducer Pattern`과 `Custom Hook Pattern`을 같이 사용했다.
+
+`Compound components Pattern`과 함께 사용하여 `Reducer`를 메인 컴포넌트 Counter에 직접 전달하는 등의 방법도 있다. 
+<br><br>
+
+## (2) 장점
+
+- 많은 제어권 부여<br> 복잡도가 높은 경우에 `State Reducers`를 사용하는 것은 사용자에게 제어권을 넘겨주는 가장 좋은 방법이다. 또한, 모든 내부 동작은 외부에서 접근할 수 있으며 오버라이드 하는 것 또한 가능하다.
+
+<br>
+
+## (3) 단점
+
+- 구현의 복잡성<br> 컴포넌트 개발자와 사용자 모두에게 가장 난이도가 높은 구현 방식이다.
+
+- 가시성 부족<br> `Reducer`의 동작이 변경될 수 있기 때문에, 컴포넌트 내부 로직에 대한 이해가 필요하다.
+
+ <br>
+
+ ## (4) 이 패턴을 사용하는 라이브러리
+ 
+- [Downshift][]
+
+[Downshift]:https://github.com/downshift-js/downshift#usage
+<br>
+
+> # End
+<br>
+위 글에서는 컴포넌트 사용자에게 주어지는 유연성과 제어권, 사용자와 개발자가 패턴을 구현하는 난이도를 중점으로 패턴들을 정의하고 설명했다. 
+
+<br>
+이 글을 읽으며 기존에 작업했던 컴포넌트 디자인을 비교하면서 다시 내용을 복기하다보니 디자인 패턴에 대한 고민이 어느정도 정리가 되었다.
+
+<br>
+그동안 목말라있던 멋진 디자인 패턴, 좋은 디자인 패턴은 결국 정해져 있던 것이 아니다. 사용 목적과 같이 사용하는 도구들과의 시너지가 부합하는 패턴을 그에 맞게 사용하면 된다.
+
+<br>
+코드는 모든 코드가 정답이다.
+
+<br>

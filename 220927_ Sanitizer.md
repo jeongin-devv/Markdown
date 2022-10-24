@@ -1,5 +1,5 @@
 <div align="right">> Created : 2022.09.27</div>
-
+ 
 > ## Overview
 회사에서 몇몇 레거시코드들을 둘러보면 데이터베이스에서 데이터를 가져오는데, 
 몇몇 데이터는 html 태그들을 포함한 String Data로 이루어져있다.

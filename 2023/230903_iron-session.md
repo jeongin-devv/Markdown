@@ -14,14 +14,14 @@
 
 이에 대해 간단하게 정리한다.
 
-## **iron-session? **
+## **iron-session?**
 
 Next.js 의 ServerSide 에서 쉽게 Session 을 관리할 수 있다. <br>
 Secure Cookie 로 인증하여 Session 에 접근하는데, <br> 
 여러가지 보안 옵션을 커스텀 할 수 있다. <br>
 설치나 사용 방법도 간단하여, 쉽게 Server Side 에서 Sesion 을 사용할 수 있다.
 
-## ** Secure **
+## **Secure**
 
 가장 큰 장점은 사용자에게 데이터를 은닉화 할 수 있다는 것이다. <br>
 암호화를 하지 않지만 사용자에게 노출이 꺼려지는 데이터들이 있을 수 있는데, <br>
@@ -31,7 +31,7 @@ Server Side 에서 관리하므로, 데이터 노출에 대한 위험도를 줄�
 Client Side 와 Server Side 모두를 사용하는 Next.js 의 특성 상, <br>
 자유롭게 양 사이드를 넘나들며 사용할 수 있기에 가능한 기능이다.
 
-## ** Asynchronous **
+## **Asynchronous**
 
 이걸 사용하면서 가장 중요하게 생각한 부분은 비동기식 이라는 것이다. <br>
 Server Side 내에서 실행 되지만, Javascript의 특성을 갖고 있다보니 <br>
